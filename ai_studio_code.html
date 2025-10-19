@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Foundations for Medical Educators - Dr Omar Ayman</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --primary-color: #4a90e2;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --header-footer-bg: #eef2f5;
+            --neon-text-color: #fff;
+            --neon-bg-color: #0d0221;
+            --neon-primary-glow: #00f6ff;
+            --neon-secondary-glow: #ff00f2;
+            --neon-card-bg: rgba(26, 3, 58, 0.8);
+        }
+        html[data-theme='dark'] {
+            --primary-color: var(--neon-primary-glow);
+            --background-color: var(--neon-bg-color);
+            --text-color: #f0f0f0;
+            --card-bg-color: var(--neon-card-bg);
+            --shadow-color: rgba(0, 246, 255, 0.2);
+            --header-footer-bg: #1a033a;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.5s, color 0.5s;
+            overflow-x: hidden;
+        }
+        .background-emojis {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .emoji {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 20s infinite linear;
+            opacity: 0.2;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-10vh) rotate(360deg); }
+        }
+        header, footer {
+            background-color: var(--header-footer-bg);
+            color: var(--text-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: background-color 0.5s, color 0.5s;
+        }
+        html[data-theme='dark'] header, html[data-theme='dark'] footer {
+            text-shadow: 0 0 5px var(--neon-primary-glow);
+        }
+        header h1, footer p {
+            font-size: 1.5rem;
+        }
+        .contact-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        html[data-theme='dark'] .contact-btn {
+            box-shadow: 0 0 10px var(--neon-primary-glow), 0 0 20px var(--neon-primary-glow);
+            color: var(--neon-bg-color);
+            background-color: var(--neon-primary-glow);
+        }
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        main {
+            padding: 2rem;
+        }
+        .section {
+            background-color: var(--card-bg-color);
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+        html[data-theme='dark'] .section {
+            border: 1px solid var(--neon-primary-glow);
+            box-shadow: 0 0 15px var(--neon-primary-glow);
+        }
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+        html[data-theme='dark'] .section h2 {
+            text-shadow: 0 0 8px var(--neon-primary-glow);
+        }
+        ul {
+            list-style: none;
+        }
+        ul li {
+            background-color: rgba(74, 144, 226, 0.1);
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 5px solid var(--primary-color);
+        }
+        html[data-theme='dark'] ul li {
+            background-color: rgba(0, 246, 255, 0.1);
+            border-left-color: var(--neon-primary-glow);
+        }
+        .qa-item {
+            margin-bottom: 1.5rem;
+        }
+        .qa-item h3 {
+            margin-bottom: 0.5rem;
+        }
+        .flashcard-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+        .flashcard {
+            width: 300px;
+            height: 200px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            border-radius: 10px;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .flashcard-front {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        html[data-theme='dark'] .flashcard-front {
+             background-color: var(--neon-primary-glow);
+             color: var(--neon-bg-color);
+             box-shadow: 0 0 10px var(--neon-primary-glow);
+        }
+        .flashcard-back {
+            background-color: var(--card-bg-color);
+            border: 2px solid var(--primary-color);
+            color: var(--text-color);
+            transform: rotateY(180deg);
+        }
+         html[data-theme='dark'] .flashcard-back {
+            border-color: var(--neon-primary-glow);
+            background-color: var(--neon-card-bg);
+         }
+        #quiz-container .question {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        #quiz-container .options label {
+            display: block;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+         #quiz-container .options label:hover {
+            background-color: rgba(74, 144, 226, 0.1);
+         }
+         html[data-theme='dark'] #quiz-container .options label:hover {
+            background-color: rgba(0, 246, 255, 0.1);
+         }
+        #submit-quiz {
+            display: block;
+            margin: 1.5rem auto 0;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        html[data-theme='dark'] #submit-quiz {
+            box-shadow: 0 0 10px var(--neon-primary-glow), 0 0 20px var(--neon-primary-glow);
+            background-color: var(--neon-primary-glow);
+            color: var(--neon-bg-color);
+        }
+        #submit-quiz:hover {
+            transform: translateY(-2px);
+        }
+        #quiz-results {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        #quiz-results h3 {
+            margin-bottom: 1rem;
+        }
+        .result-item {
+            text-align: left;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+        .result-item.correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 5px solid #2ecc71;
+        }
+        .result-item.wrong {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 5px solid #e74c3c;
+        }
+        .highlight-correct { color: #2ecc71; font-weight: bold; }
+        .highlight-wrong { color: #e74c3c; font-weight: bold; }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .comparison-column {
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .comparison-column h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .okay {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 2px solid #2ecc71;
+        }
+        .not-okay {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 2px solid #e74c3c;
+        }
+        .okay h3 { color: #27ae60; }
+        .not-okay h3 { color: #c0392b; }
+        html[data-theme='dark'] .okay {
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px #2ecc71;
+        }
+        html[data-theme='dark'] .not-okay {
+            border-color: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+        }
+
+        #contact {
+            text-align: center;
+        }
+        .social-icons {
+            margin-top: 1rem;
+        }
+        .social-icons a {
+            font-size: 2.5rem;
+            margin: 0 1rem;
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+        .social-icons a:hover {
+            transform: scale(1.2);
+        }
+        html[data-theme='dark'] .social-icons a {
+            text-shadow: 0 0 8px var(--neon-primary-glow);
+        }
+        #theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--card-bg-color);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: background-color 0.5s, transform 0.3s;
+        }
+        #theme-switcher:hover {
+            transform: scale(1.1);
+        }
+        @media (max-width: 768px) {
+            header, footer {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            main {
+                padding: 1rem;
+            }
+            .section {
+                padding: 1.5rem;
+            }
+            .section h2 {
+                font-size: 1.5rem;
+            }
+            .comparison-table {
+                grid-template-columns: 1fr;
+            }
+            .flashcard-container {
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body data-theme="light">
+
+    <div class="background-emojis"></div>
+    <button id="theme-switcher">🌙</button>
+
+    <header>
+        <h1>Dr Omar Ayman</h1>
+        <a href="https://linktr.ee/Dr_Omar_Ayman_Rizk" target="_blank" class="contact-btn">Contact Me</a>
+    </header>
+
+    <main>
+        <section class="section" id="summary">
+            <h2>Lesson Summary</h2>
+            <ul>
+                <li><strong>What is AI?</strong> AI enables machines to perform tasks requiring human-like thinking, such as learning from data and making decisions.</li>
+                <li><strong>Key AI Branches:</strong> Includes Machine Learning, Deep Learning, Natural Language Processing (NLP), Computer Vision, and Robotics.</li>
+                <li><strong>AI in Education:</strong> AI helps educators by saving time, personalizing learning, enhancing teaching materials, and supporting research.</li>
+                <li><strong>AI in Medical Education:</strong> It offers personalized learning, smart simulations, automated assessments, and can act as a teaching assistant.</li>
+                <li><strong>Ethical AI Use:</strong> Use AI for brainstorming and simplifying concepts. Avoid plagiarism, creating full presentations with AI, or fabricating information.</li>
+                <li><strong>AI's Limitations:</strong> AI can be wrong or outdated. Always verify its outputs with reliable sources.</li>
+                <li><strong>AI-Ready Mindset:</strong> Develop a mindset of curiosity, critical thinking, creativity, and ethical responsibility.</li>
+                <li><strong>Key Considerations:</strong> Always prioritize data privacy, academic integrity, transparency, and human judgment.</li>
+            </ul>
+        </section>
+
+        <section class="section" id="qa">
+            <h2>Most Important Q&A</h2>
+            <div class="qa-item">
+                <h3>Q1: What is the fundamental definition of Artificial Intelligence (AI)?</h3>
+                <p>A1: AI refers to the ability of machines and software to perform tasks that typically require human thinking, such as learning, pattern recognition, and decision-making.</p>
+            </div>
+            <div class="qa-item">
+                <h3>Q2: Name three key branches of AI relevant to medical education.</h3>
+                <p>A2: Three key branches are: 1) <strong>Machine Learning:</strong> Learning from data to make predictions. 2) <strong>Natural Language Processing (NLP):</strong> Understanding and processing human language, useful for automated assessment. 3) <strong>Computer Vision:</strong> Interpreting images and videos, crucial for analyzing medical scans.</p>
+            </div>
+            <div class="qa-item">
+                <h3>Q3: What is a responsible way for an educator to use AI for lecture preparation?</h3>
+                <p>A3: A responsible approach is to use AI for brainstorming ideas and suggesting key points, but then to personally review, verify the scientific accuracy, and add one's own expertise and explanations.</p>
+            </div>
+             <div class="qa-item">
+                <h3>Q4: What are the primary ethical risks when using AI with student data?</h3>
+                <p>A4: The primary risks are data privacy violations and a lack of personal judgment. Educators must protect sensitive student information and always review AI-generated feedback before sharing it.</p>
+            </div>
+             <div class="qa-item">
+                <h3>Q5: Why is it crucial to not treat AI as an expert?</h3>
+                <p>A5: AI can be wrong, provide outdated information, or "hallucinate" by fabricating facts, references, or data. It should be treated as a helpful assistant, and all its outputs must be critically evaluated and verified.</p>
+            </div>
+        </section>
+
+        <section class="section" id="flashcards">
+            <h2>Flash Cards</h2>
+            <div class="flashcard-container">
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Artificial Intelligence (AI)</h3></div><div class="flashcard-back"><p>The ability of machines to perform tasks that typically require human thinking.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Machine Learning</h3></div><div class="flashcard-back"><p>A branch of AI focused on algorithms that learn from data and experience.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Natural Language Processing (NLP)</h3></div><div class="flashcard-back"><p>A field of AI that helps computers understand and process human language.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Prompting</h3></div><div class="flashcard-back"><p>Providing clear instructions to an AI to generate a meaningful and relevant output.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Okay Use of AI</h3></div><div class="flashcard-back"><p>Brainstorming ideas, summarizing concepts you've already read, and simplifying complex topics.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Not Okay Use of AI</h3></div><div class="flashcard-back"><p>Copying AI-generated text directly, fabricating references, or delegating entire tasks without review.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>AI Hallucination</h3></div><div class="flashcard-back"><p>When an AI produces incorrect, nonsensical, or fabricated information that sounds plausible.</p></div></div></div>
+                <div class="flashcard"><div class="flashcard-inner"><div class="flashcard-front"><h3>Ethical AI Use</h3></div><div class="flashcard-back"><p>Involves maintaining academic integrity, ensuring data privacy, being transparent about its use, and applying human judgment.</p></div></div></div>
+            </div>
+        </section>
+
+        <section class="section" id="comparison">
+            <h2>What's Okay vs. Not Okay?</h2>
+            <div class="comparison-table">
+                <div class="comparison-column okay">
+                    <h3>✅ What's Okay</h3>
+                    <ul>
+                        <li>Asking AI to help brainstorm topic ideas for any task.</li>
+                        <li>Using AI to explain a tricky concept in simpler terms.</li>
+                        <li>Simplifying complex physiological concepts for clearer explanations.</li>
+                        <li>Generating drafts for teaching materials (summaries, quiz questions) that you will then edit and verify.</li>
+                        <li>Getting inspiration for new teaching strategies or research directions.</li>
+                    </ul>
+                </div>
+                <div class="comparison-column not-okay">
+                    <h3>❌ What's Not Okay</h3>
+                    <ul>
+                        <li>Copying an AI-generated writing and presenting it as your own.</li>
+                        <li>Letting AI create or write your entire presentation or paper.</li>
+                        <li>Delegating creation of full lectures without personal input and review.</li>
+                        <li>Summarizing research you haven't read or critically evaluated yourself.</li>
+                        <li>Fabricating references, data, or citations.</li>
+                        <li>Depending so heavily on AI that it replaces your own critical thinking.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="quiz">
+            <h2>MCQ Quiz</h2>
+            <form id="quiz-container">
+                <!-- Questions will be injected here by JavaScript -->
+            </form>
+            <button id="submit-quiz">Submit</button>
+            <div id="quiz-results"></div>
+        </section>
+        
+        <section class="section" id="contact">
+            <h2>Contact Me</h2>
+            <div class="social-icons">
+                <a href="http://wa.me/+201124361101" target="_blank" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://t.me/Dr_Omar_Ayman" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=100009354221120" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.instagram.com/omar_ayman_10" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.youtube.com/@Dr_Omar_Ayman" target="_blank"aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://chat.whatsapp.com/KH7TpEwFO3tLXULgw5cEoa?mode=wwc" target="_blank" aria-label="Whatsapp Group"><i class="fa-solid fa-users"></i></a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Dr Omar Ayman</p>
+        <a href="https://linktr.ee/Dr_Omar_Ayman_Rizk" target="_blank" class="contact-btn">Contact Me</a>
+    </footer>
+
+    <script>
+        // --- Theme Switcher ---
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const body = document.body;
+        themeSwitcher.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeSwitcher.innerHTML = '☀️';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeSwitcher.innerHTML = '🌙';
+            }
+        });
+
+        // --- Background Emojis ---
+        const emojiContainer = document.querySelector('.background-emojis');
+        const emojis = ['🧠', '⚡️'];
+        for (let i = 0; i < 20; i++) {
+            const emoji = document.createElement('div');
+            emoji.classList.add('emoji');
+            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = `${Math.random() * 100}vw`;
+            emoji.style.animationDuration = `${Math.random() * 10 + 10}s`;
+            emoji.style.animationDelay = `${Math.random() * 5}s`;
+            emojiContainer.appendChild(emoji);
+        }
+
+        // --- Flashcard Logic ---
+        const flashcards = document.querySelectorAll('.flashcard');
+        flashcards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+        });
+
+        // --- MCQ Quiz Logic ---
+        const quizData = [
+            {
+                question: "1. What is the primary function of AI described in the presentation?",
+                options: ["To replace human educators entirely", "To perform tasks that typically require human thinking", "To create complex art and music", "To manage hospital logistics"],
+                answer: "To perform tasks that typically require human thinking"
+            },
+            {
+                question: "2. Which of the following is NOT listed as a key branch of AI?",
+                options: ["Machine Learning", "Natural Language Processing", "Quantum Computing", "Computer Vision"],
+                answer: "Quantum Computing"
+            },
+            {
+                question: "3. According to the presentation, why should educators use AI?",
+                options: ["To reduce the need for student interaction", "To automate all teaching responsibilities", "To save time, personalize learning, and enhance teaching", "To ensure all students get the same grade"],
+                answer: "To save time, personalize learning, and enhance teaching"
+            },
+            {
+                question: "4. What is an example of an 'inappropriate' use of AI in an academic setting?",
+                options: ["Using AI to explain a tricky concept", "Brainstorming ideas for a research paper", "Copying an AI-generated essay and submitting it as your own", "Generating quiz questions for review"],
+                answer: "Copying an AI-generated essay and submitting it as your own"
+            },
+            {
+                question: "5. What does the presentation warn about regarding AI-generated information?",
+                options: ["It is always 100% accurate and up-to-date", "It can be outdated, biased, or completely fabricated", "It is too complex for educators to understand", "It can only be used for non-scientific subjects"],
+                answer: "It can be outdated, biased, or completely fabricated"
+            },
+            {
+                question: "6. The process of providing clear instructions to an AI is called:",
+                options: ["Algorithm", "Model Training", "Prompting", "Dataset"],
+                answer: "Prompting"
+            },
+            {
+                question: "7. Which ethical consideration is crucial when using AI tools with student work?",
+                options: ["Data Privacy", "Ensuring the AI has the newest features", "Making the lesson more difficult", "Only using paid AI tools"],
+                answer: "Data Privacy"
+            },
+            {
+                question: "8. An 'AI-Based Mindset' for educators includes curiosity, critical thinking, and:",
+                options: ["Complete reliance on technology", "Avoiding new tools", "Creativity and experimental innovation", "Sticking to traditional methods"],
+                answer: "Creativity and experimental innovation"
+            },
+            {
+                question: "9. In the context of medical education, 'Smart Simulations' refer to:",
+                options: ["AI tutors that answer student questions", "Virtual labs that model complex biological systems interactively", "Automated grading of multiple-choice questions", "Software for scheduling classes"],
+                answer: "Virtual labs that model complex biological systems interactively"
+            },
+            {
+                question: "10. What is the final takeaway message of the presentation?",
+                options: ["Replace all traditional teaching with AI", "Avoid AI in education at all costs", "Understand AI's basics, use it smartly, and keep the human touch", "Focus only on the technical aspects of AI"],
+                answer: "Understand AI's basics, use it smartly, and keep the human touch"
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const submitButton = document.getElementById('submit-quiz');
+        const resultsContainer = document.getElementById('quiz-results');
+
+        function buildQuiz() {
+            quizData.forEach((item, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question-item');
+                let optionsHTML = '';
+                item.options.forEach(option => {
+                    optionsHTML += `
+                        <label>
+                            <input type="radio" name="question${index}" value="${option}">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionDiv.innerHTML = `
+                    <p class="question">${item.question}</p>
+                    <div class="options">${optionsHTML}</div>
+                `;
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        function showResults() {
+            const answerContainers = quizContainer.querySelectorAll('.options');
+            let score = 0;
+            let resultsHTML = '<h3>Quiz Results</h3>';
+
+            quizData.forEach((item, index) => {
+                const answerContainer = answerContainers[index];
+                const selector = `input[name=question${index}]:checked`;
+                const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+                const resultItem = document.createElement('div');
+                resultItem.classList.add('result-item');
+                
+                let explanationHTML = `<p><strong>Question ${index + 1}:</strong> ${item.question}</p>`;
+
+                if (userAnswer === item.answer) {
+                    score++;
+                    resultItem.classList.add('correct');
+                    explanationHTML += `<p>Your answer: <span class="highlight-correct">${userAnswer}</span> (Correct)</p>`;
+                } else {
+                    resultItem.classList.add('wrong');
+                    explanationHTML += `<p>Your answer: <span class="highlight-wrong">${userAnswer || "No answer"}</span> (Incorrect)</p>`;
+                    explanationHTML += `<p>Correct answer: <span class="highlight-correct">${item.answer}</span></p>`;
+                }
+                
+                resultItem.innerHTML = explanationHTML;
+                resultsContainer.appendChild(resultItem);
+            });
+
+            const scoreHeader = document.createElement('h3');
+            scoreHeader.innerHTML = `You scored ${score} out of ${quizData.length}`;
+            resultsContainer.prepend(scoreHeader);
+            submitButton.style.display = 'none';
+        }
+
+        submitButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            resultsContainer.innerHTML = ''; // Clear previous results
+            showResults();
+        });
+
+        buildQuiz();
+    </script>
+</body>
+</html>
